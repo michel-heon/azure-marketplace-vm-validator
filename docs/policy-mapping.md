@@ -32,6 +32,7 @@ Reference: [Marketplace certification policies §200 — Virtual Machines](https
 | `test_2002_required_packages.sh` | 200.2.x | All packages in `CTT_REQUIRED_PACKAGES` are installed | FAIL / WARN¹ | ubuntu | `dpkg -s` per package |
 | `test_2005_no_vulnerable_packages.sh` | 200.5.8 | No installed package in `CTT_VULNERABLE_PACKAGES` has a pending security fix (DRIFT-001 generic) | FAIL / WARN¹ | ubuntu | `apt-cache policy` per package |
 | `test_2004_no_test_artifacts.sh` | 200.4.x | No forbidden fixture file on filesystem (`CTT_FORBIDDEN_ARTIFACTS`) (DRIFT-002 generic) | FAIL | ubuntu | `find / -xdev -name <artifact>` per filename |
+| `test_2005_malware_scan.sh` | 200.5.2 | No malware detected (ClamAV transient scan, paths: `CTT_MALWARE_SCAN_PATHS`) | FAIL | ubuntu, rhel, debian | `clamscan --recursive --infected` + purge |
 
 ¹ WARN when the corresponding `CTT_*` variable is unset (parameterized tests skip gracefully).
 

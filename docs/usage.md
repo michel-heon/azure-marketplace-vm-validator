@@ -43,7 +43,7 @@ between the toolkit and any caller project (git submodule, CI workflow, etc.).
 | `CTT_SEVERITY_WARN_IS_FAIL` | `0` | Set to `1` to treat every `[WARN]` result as a `[FAIL]`. Recommended for Partner Center submission gates. |
 | `CTT_REQUIRED_SERVICES` | _(none)_ | Space-separated list of systemd services that must be active (used by `test_2006_required_services.sh` when available). |
 | `CTT_REQUIRED_PACKAGES` | _(none)_ | Space-separated list of packages that must be installed (used by `test_2002_required_packages.sh` when available). |
-| `CTT_MALWARE_SCAN_PATHS` | `/var/www /home` | Space-separated paths scanned by the ClamAV transient scanner (future `test_2005_malware_scan.sh`). |
+| `CTT_MALWARE_SCAN_PATHS` | `/var/www /home /tmp /var/tmp` | Space-separated paths scanned by the ClamAV transient scanner (`test_2005_malware_scan.sh`). |
 | `CTT_REPORT_DIR` | _(none)_ | If set, a timestamped report file is written to this directory after each run. |
 
 ---
@@ -125,6 +125,21 @@ The caller workflow must export `AZURE_CREDENTIALS` as a secret for the
 |------|---------|
 | `0` | All tests PASS (or WARN only, when `CTT_SEVERITY_WARN_IS_FAIL=0`) |
 | `1` | One or more tests FAIL (or WARN promoted to FAIL) |
+
+---
+
+## Long-running tests
+
+`test_2005_malware_scan.sh` installs ClamAV transiently on the remote VM,
+downloads the latest virus database via `freshclam`, scans the paths in
+`CTT_MALWARE_SCAN_PATHS`, then purges ClamAV unconditionally. ClamAV is
+**never left in the image**.
+
+Typical execution time: **3–10 minutes** depending on the size of the
+scanned paths and the network speed for the DB download (~300 MB). Plan
+for a generous `az vm run-command invoke` timeout in your CI pipeline.
+
+> Do NOT run this test on VMs that are in active production service.
 
 ---
 

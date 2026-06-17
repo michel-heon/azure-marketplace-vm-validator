@@ -7,6 +7,27 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ---
 
+## [0.5.0] — 2026-06-17
+
+### Added
+- **`lib/_malware_scanner.sh`** — ClamAV transient scanner helper. Single
+  remote command: install ClamAV → `freshclam` → `clamscan --infected` on
+  `CTT_MALWARE_SCAN_PATHS` → purge (guaranteed via `trap EXIT`). Output
+  format: `clean` or `INFECTED:<n>:<file1>,<file2>,...` (P4.1 / P4.3).
+- **`tests/test_2005_malware_scan.sh`** — Policy 200.5.2 gate. Consumes
+  `ctt_malware_scan_cmd()`, parses `clean` / `INFECTED:*` /
+  `SCANNER_ERROR:*` output, emits `ctt_pass` or `ctt_fail` accordingly
+  (P4.2).
+
+### Changed
+- **`docs/usage.md`** — Added *Long-running tests* section documenting the
+  ClamAV transient scan: typical 3–10 min execution time, `CTT_MALWARE_SCAN_PATHS`
+  default value corrected to `/var/www /home /tmp /var/tmp` (P4.4).
+- **`docs/policy-mapping.md`** — Added `test_2005_malware_scan.sh` row
+  (200.5.2, ubuntu/rhel/debian).
+
+---
+
 ## [0.4.0] — 2026-06-17
 
 ### Added
@@ -109,6 +130,7 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 - `Makefile` — `validate`, `tests`, `test TEST=<name>` targets.
 - ADR-000 (META), ADR-600 (DEVOPS bootstrap CI).
 
+[0.5.0]: https://github.com/michel-heon/azure-marketplace-vm-validator/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/michel-heon/azure-marketplace-vm-validator/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/michel-heon/azure-marketplace-vm-validator/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/michel-heon/azure-marketplace-vm-validator/compare/v0.1.0...v0.2.0
