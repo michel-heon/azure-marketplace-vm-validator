@@ -7,6 +7,30 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ---
 
+## [0.6.0] — 2026-06-17
+
+### Added
+- **`scripts/ctt-report.sh`** — Report generator wrapping `ctt.sh tests`.
+  Produces JSON (`--format json`) and JUnit XML (`--format junit`), or both
+  (`--format all`, default). Parses `[PASS]`/`[FAIL]`/`[WARN]` lines from
+  `ctt.sh` human output into structured `{test_id, section, status, message,
+  duration_ms}` records (P5.1 / P5.2).
+- **`CTT_REPORT_DIR` support** — when set, `ctt-report.sh` writes
+  timestamped `ctt-report-<ISO>.json` and `ctt-junit-<ISO>.xml` to the
+  directory (P5.3).
+- **`Makefile` — `report` target** — `make report` runs `ctt-report.sh`
+  with `CTT_REPORT_DIR` passthrough.
+- **`Makefile` — `list` target** — expose `ctt.sh list` as `make list`.
+- **`.github/workflows/conformance.yml` updated** — new inputs `distro`,
+  `severity_warn_is_fail`, `upload_reports`; `make tests` replaced by
+  `make report` (generates reports before upload); JUnit results published
+  via `mikepenz/action-junit-report`; reports uploaded via
+  `actions/upload-artifact@v4` with 30-day retention (P5.4).
+- **`docs/usage.md`** — added *Reports* section with JSON schema, JUnit
+  note, and `CTT_REPORT_DIR` examples.
+
+---
+
 ## [0.5.0] — 2026-06-17
 
 ### Added
@@ -130,6 +154,7 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 - `Makefile` — `validate`, `tests`, `test TEST=<name>` targets.
 - ADR-000 (META), ADR-600 (DEVOPS bootstrap CI).
 
+[0.6.0]: https://github.com/michel-heon/azure-marketplace-vm-validator/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/michel-heon/azure-marketplace-vm-validator/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/michel-heon/azure-marketplace-vm-validator/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/michel-heon/azure-marketplace-vm-validator/compare/v0.2.0...v0.3.0

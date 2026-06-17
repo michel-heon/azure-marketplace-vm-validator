@@ -128,6 +128,54 @@ The caller workflow must export `AZURE_CREDENTIALS` as a secret for the
 
 ---
 
+## Reports — JSON and JUnit XML
+
+`scripts/ctt-report.sh` wraps `ctt.sh tests` and produces structured reports.
+
+```bash
+# Print JSON + JUnit to stdout
+make report
+
+# Write timestamped files to a directory (P5.3)
+CTT_REPORT_DIR=/tmp/ctt-reports make report
+# → /tmp/ctt-reports/ctt-report-20260617T120000Z.json
+# → /tmp/ctt-reports/ctt-junit-20260617T120000Z.xml
+
+# JSON only
+./scripts/ctt-report.sh --format json
+
+# JUnit only (for Azure DevOps / other CI)
+./scripts/ctt-report.sh --format junit
+```
+
+### JSON report structure
+
+```json
+{
+  "generated_at": "20260617T120000Z",
+  "vm_name": "my-vm",
+  "distro": "ubuntu",
+  "overall": "PASS",
+  "summary": { "pass": 21, "warn": 0, "fail": 0, "total": 21 },
+  "results": [
+    {
+      "test_id": "test_2003_walinuxagent",
+      "section": "200.3",
+      "status": "PASS",
+      "message": "walinuxagent is active",
+      "duration_ms": 3412
+    }
+  ]
+}
+```
+
+### JUnit XML
+
+Compatible with GitHub Actions (`mikepenz/action-junit-report`), Azure DevOps
+test reporting, and Jenkins JUnit plugin.
+
+---
+
 ## Long-running tests
 
 `test_2005_malware_scan.sh` installs ClamAV transiently on the remote VM,

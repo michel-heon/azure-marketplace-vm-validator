@@ -15,6 +15,21 @@ on:
         description: Azure subscription id
         required: true
         type: string
+      distro:
+        description: "Distro adapter (ubuntu | rhel | debian). Leave empty for auto-detection."
+        required: false
+        type: string
+        default: ""
+      severity_warn_is_fail:
+        description: "Treat WARN results as FAIL (true/false)"
+        required: false
+        type: boolean
+        default: false
+      upload_reports:
+        description: "Upload JSON and JUnit reports as workflow artifacts"
+        required: false
+        type: boolean
+        default: true
 
 jobs:
   conformance:
@@ -33,11 +48,31 @@ jobs:
           CTT_VM_NAME: ${{ inputs.vm_name }}
           CTT_RESOURCE_GROUP: ${{ inputs.resource_group }}
           CTT_SUBSCRIPTION: ${{ inputs.subscription }}
+          CTT_DISTRO: ${{ inputs.distro }}
         run: make validate
 
-      - name: Run conformance tests
+      - name: Run conformance tests and generate reports
         env:
           CTT_VM_NAME: ${{ inputs.vm_name }}
           CTT_RESOURCE_GROUP: ${{ inputs.resource_group }}
           CTT_SUBSCRIPTION: ${{ inputs.subscription }}
-        run: make tests
+          CTT_DISTRO: ${{ inputs.distro }}
+          CTT_SEVERITY_WARN_IS_FAIL: ${{ inputs.severity_warn_is_fail && '1' || '0' }}
+          CTT_REPORT_DIR: ${{ github.workspace }}/ctt-reports
+        run: make report
+
+      - name: Publish JUnit test results
+        uses: mikepenz/action-junit-report@v4
+        if: always()
+        with:
+          report_paths: "${{ github.workspace }}/ctt-reports/ctt-junit-*.xml"
+          check_name: "Conformance Test Results"
+          fail_on_failure: true
+
+      - name: Upload conformance reports
+        uses: actions/upload-artifact@v4
+        if: ${{ inputs.upload_reports && always() }}
+        with:
+          name: ctt-reports-${{ inputs.vm_name }}-${{ github.run_id }}
+          path: ${{ github.workspace }}/ctt-reports/
+          retention-days: 30
