@@ -107,7 +107,11 @@ ctt_remote_check_numeric_lte() {
 }
 
 ctt_load_distro_adapter() {
-  local adapter="$(dirname "${BASH_SOURCE[0]}")/_distro_ubuntu.sh"
-  # shellcheck source=lib/_distro_ubuntu.sh
+  local distro="${CTT_DISTRO:-ubuntu}"
+  local adapter="$(dirname "${BASH_SOURCE[0]}")/_distro_${distro}.sh"
+  if [[ ! -f "$adapter" ]]; then
+    ctt_fail "Unsupported distro adapter: ${distro}"
+    return 1
+  fi
   source "$adapter"
 }

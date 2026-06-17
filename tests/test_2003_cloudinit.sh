@@ -6,4 +6,4 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source "$ROOT_DIR/lib/_common.sh"
 ctt_load_distro_adapter
 
-ctt_remote_check_true "cloud-init package is present" "dpkg -s cloud-init >/dev/null 2>&1 && echo true || echo false"
+ctt_remote_check_true "cloud-init package is present" "$(ctt_cloud_init_present_cmd)"

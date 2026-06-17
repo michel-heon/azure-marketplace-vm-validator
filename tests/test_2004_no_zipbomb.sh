@@ -6,4 +6,4 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source "$ROOT_DIR/lib/_common.sh"
 ctt_load_distro_adapter
 
-ctt_remote_check_false "No zip bomb artifacts under /var/tmp and /tmp" "find /tmp /var/tmp -maxdepth 2 -type f -name *.zip -size +100M 2>/dev/null | grep -q . && echo true || echo false"
+ctt_remote_check_false "No zip bomb artifacts under /var/tmp and /tmp" "find /tmp /var/tmp -maxdepth 2 -type f -name '*.zip' -size +100M 2>/dev/null | grep -q . && echo true || echo false"
