@@ -7,6 +7,36 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ---
 
+## [0.3.0] — 2026-06-17
+
+### Added
+- **`test_2003_no_empty_passwords.sh`** — No account in `/etc/shadow` with an
+  empty password field (P2.1).
+- **`test_2005_permit_root_login.sh`** — `PermitRootLogin` is `no` or
+  `prohibit-password` (via `sshd -T`) (P2.1).
+- **`test_2005_no_default_credentials.sh`** — No active account has a trivially
+  short or absent password hash in `/etc/shadow` (P2.1).
+- **`test_2006_required_services.sh`** — Parameterized check: all services listed
+  in `CTT_REQUIRED_SERVICES` are active. Skips with WARN when unset (P2.1).
+- **`test_2002_required_packages.sh`** — Parameterized check: all packages listed
+  in `CTT_REQUIRED_PACKAGES` are installed. Skips with WARN when unset (P2.1).
+- **`test_2005_no_vulnerable_packages.sh`** — Generic DRIFT-001 equivalent:
+  checks packages named in `CTT_VULNERABLE_PACKAGES` have no pending security
+  fix; falls back to generic scan when unset (P2.3).
+- **`test_2004_no_test_artifacts.sh`** — Generic DRIFT-002 equivalent: scans the
+  entire filesystem for forbidden fixture filenames (configurable via
+  `CTT_FORBIDDEN_ARTIFACTS`, defaults to `zip-bomb.zip`) (P2.3).
+- **`lib/_distro_ubuntu.sh` — `ctt_pkg_installed_cmd()`** — new adapter function
+  returning an `apt`-based install check command (required by
+  `test_2002_required_packages.sh`) (P2.1).
+
+### Changed
+- **`lib/_distro_ubuntu.sh` — `ctt_pkg_update_security_check_cmd()`** — now
+  forces `apt-get update` before the simulation and uses `dist-upgrade` instead
+  of `upgrade` to catch package replacements and transitional packages (P2.2).
+
+---
+
 ## [0.2.0] — 2026-06-17
 
 ### Added
@@ -50,5 +80,6 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 - `Makefile` — `validate`, `tests`, `test TEST=<name>` targets.
 - ADR-000 (META), ADR-600 (DEVOPS bootstrap CI).
 
+[0.3.0]: https://github.com/michel-heon/azure-marketplace-vm-validator/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/michel-heon/azure-marketplace-vm-validator/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/michel-heon/azure-marketplace-vm-validator/releases/tag/v0.1.0
