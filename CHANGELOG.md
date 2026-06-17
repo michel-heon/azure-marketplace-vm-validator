@@ -7,6 +7,33 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ---
 
+## [1.0.0] — 2026-06-17
+
+### Added
+- **`tests/unit/test_common.bats`** — bats unit tests for `lib/_common.sh`:
+  counters, output prefixes, `ctt_require_azure_context`, distro loading,
+  dry-run remote check helpers (P6.1).
+- **`tests/unit/test_distro_adapters.bats`** — bats contract tests for all
+  3 adapters (ubuntu, rhel, debian): verifies each mandatory ADR-100 function
+  is present and returns a non-empty command string (P6.1).
+- **`.github/workflows/ci.yml`** — CI workflow on every PR and push to main:
+  `shellcheck --severity=warning` on all shell files, `bats tests/unit/`,
+  `bash -n` syntax check on all scripts (P6.2).
+- **`.github/ISSUE_TEMPLATE/bug.yml`** — structured bug report template (P6.3).
+- **`.github/ISSUE_TEMPLATE/test-request.yml`** — new test request template
+  with policy section, severity, distros, proposed command (P6.3).
+- **`.github/ISSUE_TEMPLATE/distro-adapter-request.yml`** — distro adapter
+  request template requiring Azure-approved image checkbox (P6.3).
+
+### Changed
+- **`CONTRIBUTING.md`** — expanded with distro adapter guide, full versioning
+  policy table (MAJOR/MINOR/PATCH), release checklist, code-style rules (P6.4).
+- **`README.md`** — rewritten with CI/multi-distro badges, policy coverage table
+  (22 tests by section), distro matrix, report quick-start, submodule and
+  reusable workflow examples, full project structure tree (P6.5).
+
+---
+
 ## [0.6.0] — 2026-06-17
 
 ### Added
@@ -154,6 +181,7 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 - `Makefile` — `validate`, `tests`, `test TEST=<name>` targets.
 - ADR-000 (META), ADR-600 (DEVOPS bootstrap CI).
 
+[1.0.0]: https://github.com/michel-heon/azure-marketplace-vm-validator/compare/v0.6.0...v1.0.0
 [0.6.0]: https://github.com/michel-heon/azure-marketplace-vm-validator/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/michel-heon/azure-marketplace-vm-validator/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/michel-heon/azure-marketplace-vm-validator/compare/v0.3.0...v0.4.0

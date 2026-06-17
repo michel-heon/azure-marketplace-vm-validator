@@ -1,0 +1,62 @@
+name: Distro adapter request
+description: Request support for a new Linux distribution
+labels: ["enhancement", "distro-adapter"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form to request a new distro adapter (`lib/_distro_<name>.sh`).
+        See [ADR-100](../../docs/adr/100-ARCH-contrat-adapter-distro.md) for
+        the mandatory contract (3 required functions).
+
+  - type: input
+    id: distro_name
+    attributes:
+      label: Distribution name
+      description: "e.g. SUSE, Fedora, Oracle Linux"
+      placeholder: "SUSE Linux Enterprise"
+    validations:
+      required: true
+
+  - type: input
+    id: ctt_distro_value
+    attributes:
+      label: Proposed CTT_DISTRO value
+      description: "Short slug used in the filename lib/_distro_<slug>.sh"
+      placeholder: "suse"
+    validations:
+      required: true
+
+  - type: input
+    id: pkg_manager
+    attributes:
+      label: Package manager
+      description: "apt / dnf / yum / zypper / …"
+      placeholder: "zypper"
+    validations:
+      required: true
+
+  - type: input
+    id: security_update_cmd
+    attributes:
+      label: Security update check command
+      description: "How to list pending security updates on this distro"
+      placeholder: "zypper list-patches --category security"
+
+  - type: textarea
+    id: os_release
+    attributes:
+      label: /etc/os-release ID field
+      description: "Paste the ID= line(s) from /etc/os-release for this distro family"
+      render: shell
+      placeholder: |
+        ID=sles
+        ID_LIKE=suse
+
+  - type: checkboxes
+    id: azure_approved
+    attributes:
+      label: Azure Marketplace approved image
+      options:
+        - label: This distro is in the [Azure Marketplace approved base OS list](https://learn.microsoft.com/en-us/legal/marketplace/certification-policies#200-virtual-machines)
+          required: true

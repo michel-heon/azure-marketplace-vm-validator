@@ -1,0 +1,56 @@
+name: CI — shellcheck + bats
+
+# Runs on every PR and push to main.
+# Does NOT require Azure credentials — fully local / dry-run.
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+
+jobs:
+  shellcheck:
+    name: shellcheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install shellcheck
+        run: sudo apt-get install -y shellcheck
+
+      - name: Lint all shell files
+        run: |
+          find scripts/ lib/ tests/ -name '*.sh' | sort | \
+            xargs shellcheck --severity=warning --external-sources
+
+  bats:
+    name: bats unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install bats-core
+        run: |
+          sudo apt-get install -y bats
+          bats --version
+
+      - name: Run unit tests
+        env:
+          CTT_DRY_RUN: "1"
+          CTT_DISTRO: ubuntu
+          CTT_VM_NAME: dry-run-vm
+          CTT_RESOURCE_GROUP: dry-run-rg
+          CTT_SUBSCRIPTION: "00000000-0000-0000-0000-000000000000"
+        run: bats tests/unit/
+
+  cli-syntax:
+    name: CLI syntax check (bash -n)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check bash syntax for all scripts
+        run: |
+          find scripts/ lib/ -name '*.sh' | sort | \
+            xargs -I{} bash -n {}
+          echo "All scripts pass bash -n syntax check"

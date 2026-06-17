@@ -1,0 +1,49 @@
+name: Bug report
+description: Report a broken or incorrect conformance test
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug. Please fill in the details below.
+
+  - type: input
+    id: test_name
+    attributes:
+      label: Failing test
+      description: "Name of the test file (e.g. test_2003_walinuxagent)"
+      placeholder: test_2003_walinuxagent
+    validations:
+      required: true
+
+  - type: input
+    id: distro
+    attributes:
+      label: CTT_DISTRO
+      description: "Distro adapter used (ubuntu / rhel / debian)"
+      placeholder: ubuntu
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual output
+      description: "Paste the terminal output (ctt.sh or make tests)"
+      render: shell
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behaviour
+    validations:
+      required: true
+
+  - type: input
+    id: az_version
+    attributes:
+      label: az CLI version
+      description: "Output of `az version --query '\"azure-cli\"' -o tsv`"
+      placeholder: "2.61.0"

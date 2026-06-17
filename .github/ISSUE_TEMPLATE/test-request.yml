@@ -1,0 +1,63 @@
+name: Test request
+description: Request a new conformance test for a certification policy clause
+labels: ["enhancement", "new-test"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form to request a new test covering a Microsoft certification
+        policy clause not yet in the toolkit.
+
+  - type: input
+    id: policy_section
+    attributes:
+      label: Policy section
+      description: "Microsoft certification policy section (e.g. 200.3.3)"
+      placeholder: "200.3.3"
+    validations:
+      required: true
+
+  - type: input
+    id: policy_url
+    attributes:
+      label: Policy URL
+      description: "Direct link to the policy clause"
+      placeholder: "https://learn.microsoft.com/en-us/legal/marketplace/certification-policies#..."
+
+  - type: textarea
+    id: requirement
+    attributes:
+      label: Requirement description
+      description: "What must be true on the VM for the test to PASS?"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      options:
+        - FAIL (certification blocker)
+        - WARN (best-practice gap)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: distros
+    attributes:
+      label: Distros affected
+      multiple: true
+      options:
+        - ubuntu
+        - rhel
+        - debian
+        - all
+    validations:
+      required: true
+
+  - type: textarea
+    id: remote_command
+    attributes:
+      label: Proposed remote command (optional)
+      description: "Shell snippet that would run on the VM and print true/false"
+      render: shell
