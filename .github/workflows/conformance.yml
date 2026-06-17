@@ -1,0 +1,43 @@
+name: Conformance Toolkit
+
+on:
+  workflow_call:
+    inputs:
+      vm_name:
+        description: Azure VM name
+        required: true
+        type: string
+      resource_group:
+        description: Azure resource group
+        required: true
+        type: string
+      subscription:
+        description: Azure subscription id
+        required: true
+        type: string
+
+jobs:
+  conformance:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Validate tool prerequisites
+        env:
+          CTT_VM_NAME: ${{ inputs.vm_name }}
+          CTT_RESOURCE_GROUP: ${{ inputs.resource_group }}
+          CTT_SUBSCRIPTION: ${{ inputs.subscription }}
+        run: make validate
+
+      - name: Run conformance tests
+        env:
+          CTT_VM_NAME: ${{ inputs.vm_name }}
+          CTT_RESOURCE_GROUP: ${{ inputs.resource_group }}
+          CTT_SUBSCRIPTION: ${{ inputs.subscription }}
+        run: make tests

@@ -1,0 +1,13 @@
+name: Use shared conformance workflow
+
+on:
+  workflow_dispatch:
+
+jobs:
+  conformance:
+    uses: michel-heon/azure-marketplace-vm-validator/.github/workflows/conformance.yml@main
+    with:
+      vm_name: demo-vm
+      resource_group: demo-rg
+      subscription: 00000000-0000-0000-0000-000000000000
+    secrets: inherit
