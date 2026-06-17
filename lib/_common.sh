@@ -106,12 +106,40 @@ ctt_remote_check_numeric_lte() {
   return 1
 }
 
+# P3.4 — Detect distro from /etc/os-release on the remote VM.
+# Reads the ID field and maps it to a supported adapter name.
+# Returns the adapter name (e.g. "ubuntu", "rhel", "debian").
+ctt_remote_detect_distro() {
+  local raw_id
+  raw_id="$(ctt_remote_stdout 'source /etc/os-release 2>/dev/null && echo "${ID:-unknown}"' | tr -d '\r' | tail -n 1)"
+  case "$raw_id" in
+    ubuntu)              printf '%s' "ubuntu" ;;
+    debian)              printf '%s' "debian" ;;
+    rhel|centos|rocky|almalinux|ol) printf '%s' "rhel" ;;
+    *)                   printf '%s' "ubuntu" ; ctt_warn "Unknown distro '${raw_id}' — falling back to ubuntu adapter" ;;
+  esac
+}
+
 ctt_load_distro_adapter() {
-  local distro="${CTT_DISTRO:-ubuntu}"
-  local adapter="$(dirname "${BASH_SOURCE[0]}")/_distro_${distro}.sh"
+  local distro="${CTT_DISTRO:-}"
+  # P3.4 — auto-detect when CTT_DISTRO is unset
+  if [[ -z "$distro" ]]; then
+    if [[ "${CTT_DRY_RUN:-0}" == "1" ]]; then
+      # In dry-run mode there is no real VM — default to ubuntu
+      distro="ubuntu"
+    else
+      ctt_info "CTT_DISTRO not set — auto-detecting from remote /etc/os-release"
+      distro="$(ctt_remote_detect_distro)"
+      ctt_info "Detected distro adapter: ${distro}"
+    fi
+  fi
+  local adapter
+  adapter="$(dirname "${BASH_SOURCE[0]}")/_distro_${distro}.sh"
   if [[ ! -f "$adapter" ]]; then
     ctt_fail "Unsupported distro adapter: ${distro}"
     return 1
   fi
+  # Export so child test scripts inherit the resolved value
+  export CTT_DISTRO="$distro"
   source "$adapter"
 }

@@ -48,7 +48,7 @@ git commit -m "docs(adr): ADR-701 [TEST] Nouvelle décision"
 
 | ADR | Titre | Statut | Date | Domaine |
 |-----|-------|--------|------|---------|
-| *(aucun ADR pour l'instant)* | | | | |
+| [100](./100-ARCH-contrat-adapter-distro.md) | Contrat d'interface des adapters distro | ✅ Accepté | 2026-06-17 | Architecture |
 
 ---
 
@@ -114,7 +114,7 @@ git commit -m "docs(adr): ADR-701 [TEST] Nouvelle décision"
 
 | Indicateur | Valeur |
 |-----------|--------|
-| **Total ADRs** | 5 |
+| **Total ADRs** | 6 |
 | **Acceptés** | 5 |
 | **Dépréciés** | 0 |
 | **Proposés** | 0 |

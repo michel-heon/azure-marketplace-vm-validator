@@ -1,0 +1,129 @@
+name: Multi-distro adapter CI
+
+# Validates that every distro adapter:
+#   1. Sources without errors
+#   2. Implements all mandatory contract functions (ADR-100)
+#   3. Each mandatory function returns a non-empty command string
+#
+# Runs in CTT_DRY_RUN=1 mode — no Azure VM required.
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "lib/_distro_*.sh"
+      - "lib/_common.sh"
+      - ".github/workflows/ci-multi-distro.yml"
+  pull_request:
+    paths:
+      - "lib/_distro_*.sh"
+      - "lib/_common.sh"
+      - ".github/workflows/ci-multi-distro.yml"
+
+jobs:
+  adapter-contract:
+    name: Adapter contract — ${{ matrix.distro }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        distro: [ubuntu, rhel, debian]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate adapter contract for ${{ matrix.distro }}
+        env:
+          CTT_DISTRO: ${{ matrix.distro }}
+          CTT_DRY_RUN: "1"
+          # Required by ctt_require_azure_context (not called in dry-run tests)
+          CTT_VM_NAME: "dry-run-vm"
+          CTT_RESOURCE_GROUP: "dry-run-rg"
+          CTT_SUBSCRIPTION: "00000000-0000-0000-0000-000000000000"
+        run: |
+          set -euo pipefail
+          source lib/_common.sh
+          ctt_load_distro_adapter
+
+          echo "=== Checking mandatory contract functions for CTT_DISTRO=${CTT_DISTRO} ==="
+
+          check_fn() {
+            local fn="$1"; shift
+            if ! declare -f "$fn" >/dev/null 2>&1; then
+              echo "[FAIL] Function '${fn}' is not defined"
+              exit 1
+            fi
+            local result
+            result="$("$fn" "$@")"
+            if [[ -z "$result" ]]; then
+              echo "[FAIL] Function '${fn}' returned an empty string"
+              exit 1
+            fi
+            echo "[PASS] ${fn} → '${result}'"
+          }
+
+          check_fn ctt_pkg_update_security_check_cmd
+          check_fn ctt_cloud_init_present_cmd
+          check_fn ctt_pkg_installed_cmd "curl"
+
+          echo "=== All mandatory contract functions present and non-empty ==="
+
+  adapter-lint:
+    name: shellcheck — ${{ matrix.file }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        file:
+          - lib/_common.sh
+          - lib/_distro_ubuntu.sh
+          - lib/_distro_rhel.sh
+          - lib/_distro_debian.sh
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install shellcheck
+        run: sudo apt-get install -y shellcheck
+
+      - name: Lint ${{ matrix.file }}
+        run: shellcheck --severity=warning "${{ matrix.file }}"
+
+  cli-dry-run:
+    name: CLI dry-run (ubuntu)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install jq
+        run: sudo apt-get install -y jq
+
+      - name: ctt.sh validate (dry-run)
+        env:
+          CTT_DISTRO: ubuntu
+          CTT_DRY_RUN: "1"
+          CTT_VM_NAME: "dry-run-vm"
+          CTT_RESOURCE_GROUP: "dry-run-rg"
+          CTT_SUBSCRIPTION: "00000000-0000-0000-0000-000000000000"
+        run: ./scripts/ctt.sh validate
+
+      - name: ctt.sh list
+        env:
+          CTT_DISTRO: ubuntu
+          CTT_DRY_RUN: "1"
+          CTT_VM_NAME: "dry-run-vm"
+          CTT_RESOURCE_GROUP: "dry-run-rg"
+          CTT_SUBSCRIPTION: "00000000-0000-0000-0000-000000000000"
+        run: ./scripts/ctt.sh list
+
+      - name: ctt.sh tests (dry-run, warn-is-fail)
+        env:
+          CTT_DISTRO: ubuntu
+          CTT_DRY_RUN: "1"
+          CTT_VM_NAME: "dry-run-vm"
+          CTT_RESOURCE_GROUP: "dry-run-rg"
+          CTT_SUBSCRIPTION: "00000000-0000-0000-0000-000000000000"
+        run: ./scripts/ctt.sh --severity-warn-is-fail tests

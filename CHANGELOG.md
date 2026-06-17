@@ -7,6 +7,35 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ---
 
+## [0.4.0] — 2026-06-17
+
+### Added
+- **`lib/_distro_rhel.sh`** — Distro adapter for RHEL 8/9, CentOS Stream 8/9,
+  Rocky Linux, AlmaLinux. Uses `dnf updateinfo list updates security` for
+  security scan (P3.2).
+- **`lib/_distro_debian.sh`** — Distro adapter for Debian 11 / 12. Near-Ubuntu
+  but without ESM; uses `apt-get -s dist-upgrade` against `*-security` suite
+  (P3.3).
+- **`ctt_remote_detect_distro()`** in `lib/_common.sh` — reads
+  `/etc/os-release` on the remote VM and returns the matching adapter name
+  (`ubuntu`, `rhel`, `debian`). Falls back to `ubuntu` with a WARN for unknown
+  IDs (P3.4).
+- **`ctt_load_distro_adapter()` updated** — auto-detects distro when
+  `CTT_DISTRO` is unset (unless `CTT_DRY_RUN=1` where it defaults to `ubuntu`).
+  Exports resolved `CTT_DISTRO` so child test scripts inherit it (P3.4).
+- **`.github/workflows/ci-multi-distro.yml`** — CI matrix workflow with three
+  jobs: (1) adapter contract validation for each distro (`ubuntu`, `rhel`,
+  `debian`) in dry-run, (2) `shellcheck --severity=warning` for all lib files,
+  (3) CLI dry-run smoke (`validate`, `list`, `tests --severity-warn-is-fail`)
+  (P3.5).
+- **`docs/adr/100-ARCH-contrat-adapter-distro.md`** — ADR formalizing the
+  mandatory adapter contract (3 required functions, return convention, optional
+  extensions) (P3.1).
+- **`lib/_distro_ubuntu.sh` optional functions** — `ctt_pkg_manager_name()` and
+  `ctt_os_release_id()` added for completeness per ADR-100.
+
+---
+
 ## [0.3.0] — 2026-06-17
 
 ### Added
@@ -80,6 +109,7 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 - `Makefile` — `validate`, `tests`, `test TEST=<name>` targets.
 - ADR-000 (META), ADR-600 (DEVOPS bootstrap CI).
 
+[0.4.0]: https://github.com/michel-heon/azure-marketplace-vm-validator/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/michel-heon/azure-marketplace-vm-validator/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/michel-heon/azure-marketplace-vm-validator/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/michel-heon/azure-marketplace-vm-validator/releases/tag/v0.1.0

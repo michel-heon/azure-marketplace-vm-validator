@@ -20,3 +20,13 @@ ctt_pkg_installed_cmd() {
   local pkg="$1"
   printf '%s' "dpkg -s '${pkg}' >/dev/null 2>&1 && echo true || echo false"
 }
+
+# Optional — package manager name (ADR-100)
+ctt_pkg_manager_name() {
+  printf '%s' "apt"
+}
+
+# Optional — OS release ID (ADR-100)
+ctt_os_release_id() {
+  printf '%s' "ubuntu"
+}
