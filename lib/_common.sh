@@ -61,9 +61,29 @@ ctt_remote_exec() {
 }
 
 ctt_remote_stdout() {
+  # az vm run-command invoke (api-version 2024-11-01+) ne renvoie plus deux
+  # entrées séparées value[].code = "ComponentStatus/StdOut/..." et
+  # ".../StdErr/...". Désormais une seule entrée value[0] dont .message a la
+  # forme :
+  #     Enable succeeded:\n[stdout]\n<sortie>\n\n[stderr]\n<erreurs>\n
+  # On extrait le bloc entre [stdout] et [stderr] (exclus), puis on retire la
+  # ligne vide finale qu'Azure ajoute systématiquement.
   local payload
   payload="$(ctt_remote_exec "$1")"
-  printf '%s' "$payload" | jq -r '.value[] | select(.code | test("StdOut")) | .message' | sed '/^null$/d'
+  local message
+  message="$(printf '%s' "$payload" | jq -r '.value[0].message // empty')"
+  if [[ -z "$message" ]]; then
+    return 0
+  fi
+  # Compat ancien format (ComponentStatus/StdOut) si jamais réapparaît.
+  if printf '%s' "$payload" | jq -e '.value[] | select(.code | test("StdOut"))' >/dev/null 2>&1; then
+    printf '%s' "$payload" | jq -r '.value[] | select(.code | test("StdOut")) | .message' | sed '/^null$/d'
+    return 0
+  fi
+  # Nouveau format : extraire [stdout] ... [stderr]
+  printf '%s\n' "$message" \
+    | sed -n '/^\[stdout\]$/,/^\[stderr\]$/{ /^\[stdout\]$/d; /^\[stderr\]$/d; p; }' \
+    | sed -e '$ { /^$/d; }'
 }
 
 ctt_remote_check_true() {

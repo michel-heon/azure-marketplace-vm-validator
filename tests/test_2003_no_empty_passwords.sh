@@ -8,5 +8,7 @@ ctt_load_distro_adapter
 
 # Policy 200.3.3 — No account in /etc/shadow must have an empty password field
 # (second field empty means passwordless login is possible).
+# NOTE : "!" et "*" sont des verrous valides (compte désactivé), pas des vides.
+# Seul un champ littéralement vide pose problème de sécurité.
 ctt_remote_check_false "No accounts with empty passwords in /etc/shadow" \
-  "awk -F: '(\$2 == \"\" || \$2 == \"!\") { found=1 } END { if (found) print \"true\"; else print \"false\" }' /etc/shadow 2>/dev/null | tail -n 1"
+  'n=$(sudo cut -d: -f2 /etc/shadow | grep -c "^$" 2>/dev/null || echo 0); if [ "$n" -gt 0 ]; then echo true; else echo false; fi'
